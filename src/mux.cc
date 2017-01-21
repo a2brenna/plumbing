@@ -169,6 +169,7 @@ int main(int argc, const char* argv[]){
                         else{
                             //forward the bytes
                             write(1, buf, bytes);
+                            fsync(1);
                             //check to see if we reached an end of line
                             if(buf[bytes - 1] == '\n'){
                                 //end of line
