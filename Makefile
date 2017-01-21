@@ -9,6 +9,9 @@ CXXFLAGS=-L${LIBRARY_DIR} -I${INCLUDE_DIR} -march=native -O3 -flto -std=c++11 -f
 all: mux demux
 
 install: all
+	mkdir -p ${DESTDIR}/${PREFIX}/lib
+	cp mux ${DESTDIR}/${PREFIX}/bin
+	cp demux ${DESTDIR}/${PREFIX}/bin
 
 mux: src/mux.cc
 	${CXX} ${CXXFLAGS} -o mux src/mux.cc -lboost_program_options -lpthread
