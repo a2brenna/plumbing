@@ -34,7 +34,7 @@ void accept_new_connections(const int &fd){
         else{
             std::lock_guard<std::mutex> l(recvers_mutex);
             recvers.insert(new_connection);
-            raise(SIGINT);
+            raise(SIGUSR1);
         }
     }
 };
@@ -59,9 +59,10 @@ int main(int argc, const char* argv[]){
     const int signal_fd = [](){
         sigset_t mask;
         sigfillset(&mask);
+        sigdelset(&mask, SIGINT);
         sigprocmask(SIG_SETMASK, &mask, nullptr);
         sigemptyset(&mask);
-        sigaddset(&mask, SIGINT);
+        sigaddset(&mask, SIGUSR1);
         return signalfd(-1, &mask, 0);
     }();
 
