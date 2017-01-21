@@ -72,11 +72,6 @@ int main(int argc, const char* argv[]){
 		s << PORT;
 		const std::string port_string = s.str();
 
-		struct addrinfo *r = nullptr;
-		const int addrinfo_status = getaddrinfo("127.0.0.1", port_string.c_str(), nullptr, &r);
-        assert(addrinfo_status == 0);
-        assert(r != nullptr);
-
 		int sockfd = socket(AF_INET, SOCK_STREAM, 0);
         assert(sockfd >= 0);
 
@@ -85,18 +80,13 @@ int main(int argc, const char* argv[]){
 		const auto sb = setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(int));
         assert( (sa == 0) && (sb == 0) );
 
-		bool bound = false;
-		for(auto s = r; s != nullptr; s = s->ai_next){
-			const int b = bind(sockfd, s->ai_addr, s->ai_addrlen);
-			if (b == 0) {
-				bound = true;
-				break;
-			}
-			else{
-				continue;
-			}
-		}
-        assert(bound);
+        struct sockaddr_in address;
+        address.sin_family = AF_INET;
+        address.sin_port = htons(PORT);
+        address.sin_addr.s_addr = INADDR_ANY;
+
+        const auto bind_result = bind(sockfd, (struct sockaddr *)(&address), sizeof(address));
+        assert(bind_result == 0);
 
 		const int l = ::listen(sockfd, SOMAXCONN);
         assert(l >= 0);
