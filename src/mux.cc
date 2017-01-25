@@ -145,7 +145,8 @@ int main(int argc, const char* argv[]){
         assert(select_result > 0);
 
         if(FD_ISSET(signal_fd, &(current_connections.first))){
-            read(signal_fd, buf, 4096);
+            const int r = read(signal_fd, buf, 4096);
+            assert(r > 0);
         }
         else{
             for(int f = 0; f < current_connections.second; f++){
@@ -162,7 +163,8 @@ int main(int argc, const char* argv[]){
                         }
                         else{
                             //forward the bytes
-                            write(1, buf, bytes);
+                            int r = write(1, buf, bytes);
+                            assert(r == bytes);
                             //check to see if we wrote an end of line
                             if(buf[bytes - 1] == '\n'){
                                 //end of line
@@ -177,9 +179,11 @@ int main(int argc, const char* argv[]){
                         }
                     }
                     if(dirty){
-                        write(1, "\n", 1);
+                        int r = write(1, "\n", 1);
+                        assert(r == 1);
                     }
-                    fsync(1);
+                    int r = fsync(1);
+                    assert(r == 0);
                 }
                 else{
                     continue;
