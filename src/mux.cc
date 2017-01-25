@@ -150,17 +150,11 @@ int main(int argc, const char* argv[]){
         else{
             for(int f = 0; f < current_connections.second; f++){
                 if(FD_ISSET(f, &(current_connections.first))){
+                    bool dirty = false;
                     while(true){
                         int bytes = read(f, buf, 4096);
-                        if(bytes < 0){
-                            //error of some sort
-                            std::lock_guard<std::mutex> l(recvers_mutex);
-                            recvers.erase(f);
-                            close(f);
-                            break;
-                        }
-                        else if(bytes == 0){
-                            //fd has reached EOF (closed?)
+                        if(bytes <= 0){
+                            //error of some sort, or fd is closed
                             std::lock_guard<std::mutex> l(recvers_mutex);
                             recvers.erase(f);
                             close(f);
@@ -169,18 +163,23 @@ int main(int argc, const char* argv[]){
                         else{
                             //forward the bytes
                             write(1, buf, bytes);
-                            fsync(1);
-                            //check to see if we reached an end of line
+                            //check to see if we wrote an end of line
                             if(buf[bytes - 1] == '\n'){
                                 //end of line
+                                dirty = false;
                                 break;
                             }
                             else{
                                 //not end of line, expect more data, should always recv lines
+                                dirty = true;
                                 continue;
                             }
                         }
                     }
+                    if(dirty){
+                        write(1, "\n", 1);
+                    }
+                    fsync(1);
                 }
                 else{
                     continue;
