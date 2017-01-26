@@ -53,6 +53,11 @@ int main(int argc, const char* argv[]){
     po::store(command_line_parameters, vm);
     po::notify(vm);
 
+    if(vm.count("help")){
+        std::cout << desc << std::endl;
+        return 0;
+    }
+
     char *buf = (char*)malloc(4096);
 
     //set all signals to be blocked except SIGINT to be handled by a signalfd, signal_fd;
