@@ -1,0 +1,18 @@
+Simple Multiplexer
+
+    'mux' is a simple multiplexing utility. It accepts incoming connections on
+a unix domain socket and/or TCP port. It then forwards all the data it recieves on
+those connections, and from stdin, line by line to stdout.  Very useful for
+combining newline delimited data from multiple processes into a single coherent
+stream.
+
+The following example combines and forwards all the lines produced by some_process,
+some_second_process and a_third_process to stdin of some_other_process.
+
+a2brenna@en12-82:~$ some_process | mux --port 9999 --unix_domain_socket \
+/var/run/uds.sock | some_other_process
+
+a2brenna@en12-82:~$ some_second_process | socat - \
+UNIX-CONNECT:/var/run/uds.sock
+
+a2brenna@gibson:~$ a_third_process | nc en12-82 9999
