@@ -182,8 +182,6 @@ int main(int argc, const char* argv[]){
                         int r = write(1, "\n", 1);
                         assert(r == 1);
                     }
-                    int r = fsync(1);
-                    assert(r == 0);
                 }
                 else{
                     continue;
